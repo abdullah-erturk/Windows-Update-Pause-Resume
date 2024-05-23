@@ -46,7 +46,7 @@ Secure: Operates securely using Windows' built-in commands.
 
 INSTALLATION AND USE
 
-Download the Windows_Update_Pause_TR.vbs file in this repository.
+Download the Windows_Update_Pause_ENG.vbs file in this repository.
 
 Run the script by double-clicking on the file.
 
