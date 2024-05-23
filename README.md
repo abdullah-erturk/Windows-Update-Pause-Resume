@@ -1,4 +1,4 @@
-# Windows Update Pause Resume
+# Windows Update Pause / Resume
 
      Türkçe Açıklama
 
