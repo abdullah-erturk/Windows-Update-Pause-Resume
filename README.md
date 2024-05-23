@@ -10,7 +10,7 @@ Kolay Kullanım: Sadece bir kaç çift tıklama ile Windows Update hizmetini dur
 
 Hızlı ve Etkili: Güncelleme hizmetini anında duraklatır, zaman kaybı yaşatmaz.
 
-Geri Alınabilir: Scripti tekrar çalıştırarak güncellemeleri kaldığınız yerden devam ettirebilirsiniz.
+Geri Alınabilir: Scripti tekrar çalıştırarak güncellemelere kaldığınız yerden devam ettirebilirsiniz.
 
 Güvenli: Windows'un yerleşik komutlarını kullanarak güvenli bir şekilde işlem yapar.
 
