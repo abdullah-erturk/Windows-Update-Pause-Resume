@@ -29,6 +29,7 @@ Windows 10 veya Windows 11
 Yönetici yetkileri (betik dosyas tarafından otomatik sağlanır)
 
 
+
      English Explanation
 
 FEATURES
