@@ -25,6 +25,7 @@ Güncellemeleri devam ettirmek için scripti bir kere çalıştırmanız yeterli
 SİSTEM GEREKSİNİMLERİ
 
 Windows 10 veya Windows 11
+
 Yönetici yetkileri (betik dosyas tarafından otomatik sağlanır)
 
 
@@ -53,4 +54,5 @@ To continue the updates, you just need to run the script once.
 SYSTEM REQUIREMENTS
 
 Windows 10 or Windows 11
+
 Administrator rights (provided automatically by the script file)
