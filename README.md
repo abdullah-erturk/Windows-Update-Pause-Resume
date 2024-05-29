@@ -28,7 +28,7 @@ SİSTEM GEREKSİNİMLERİ
 
 Windows 10 veya Windows 11
 
-Yönetici yetkileri (betik dosyas tarafından otomatik sağlanır)
+Yönetici yetkileri (betik dosyası tarafından otomatik sağlanır)
 
 
 
