@@ -1,3 +1,5 @@
+https://buymeacoffee.com/abdullaherturk
+
 # Windows Update Pause / Resume
 
 ![sample](https://github.com/abdullah-erturk/Windows-Update-Pause-Resume/blob/main/Prewiev.gif)
