@@ -23,8 +23,6 @@
 - 🛡️ **Güvenlik korunur** — her iki yöntemde de yalnızca işletim sistemi güncelleştirmeleri durur; **Microsoft Defender virüs tanımı (imza) güncellemelerini almaya devam eder**, bilgisayarınız korumasız kalmaz.
 - 🌐 **Otomatik Türkçe / İngilizce arayüz** — işletim sistemi dili Türkçe ise arayüz Türkçe, değilse İngilizce olur.
 - 📦 **Tek dosya** — ayrı TR/ENG sürümlerine gerek yok; aynı betik her iki dili de destekler.
-- 🪟 **Konsol başlığı** — açılan pencerenin başlığında `Windows Update Pause / Resume | by Abdullah ERTÜRK` yazar.
-
 </details>
 
 <details>
@@ -137,8 +135,6 @@ Betik, derleme numarasına göre (15063 eşiği) uygun yöntemi otomatik seçer.
 - 🛡️ **Security stays on** — with both methods only OS updates are stopped; **Microsoft Defender keeps receiving virus definition (signature) updates**, so your PC is not left unprotected.
 - 🌐 **Automatic Turkish / English UI** — Turkish if the OS display language is Turkish, otherwise English.
 - 📦 **Single file** — no separate TR/ENG versions; one script handles both languages.
-- 🪟 **Console title** — the window title shows `Windows Update Pause / Resume | by Abdullah ERTÜRK`.
-
 </details>
 
 <details>
