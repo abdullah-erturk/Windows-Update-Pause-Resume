@@ -7,7 +7,6 @@
 ![UI](https://img.shields.io/badge/UI-T%C3%BCrk%C3%A7e%20%7C%20English-2ea44f)
 ![Auto Elevation](https://img.shields.io/badge/Auto-Elevation%20(UAC)-orange)
 ![Defender](https://img.shields.io/badge/Defender-stays%20updated-44cc11?logo=windows-defender&logoColor=white)
-![License](https://img.shields.io/github/license/abdullah-erturk/Windows-Update-Pause-Resume)
 
 ![sample](https://github.com/abdullah-erturk/Windows-Update-Pause-Resume/blob/main/prewiev.gif)
 
