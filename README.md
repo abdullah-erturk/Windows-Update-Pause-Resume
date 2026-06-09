@@ -12,7 +12,7 @@
 
 ---
 
-## 🇹🇷 Türkçe Açıklama
+## Türkçe Açıklama
 
 <details>
 <summary><b>🆕 Yenilikler</b></summary>
@@ -126,7 +126,7 @@ Betik, derleme numarasına göre (15063 eşiği) uygun yöntemi otomatik seçer.
 
 ---
 
-## 🇬🇧 English Explanation
+## English Explanation
 
 <details>
 <summary><b>🆕 What's New</b></summary>
