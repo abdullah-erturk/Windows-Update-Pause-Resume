@@ -5,6 +5,7 @@ title Windows Update Pause / Resume ^| by Abdullah ERTÜRK
 :: Eski konsol açıldıktan sonra ekranı temizle ve boyutu ayarla
 ::mode con: cols=70 lines=4
 for %%A in ("%~f0") do set "BAT_PATH=%%~A"
+set "BAT_PATH=%BAT_PATH:'=''%"
 powershell.exe -noprofile -ExecutionPolicy Bypass -Command "& { $scriptPath = '%BAT_PATH%'; $utf8NoBom = New-Object System.Text.UTF8Encoding $false; if (Test-Path $scriptPath) { $content = [System.IO.File]::ReadAllText($scriptPath, $utf8NoBom); Invoke-Expression $content } else { Write-Host 'Dosya bulunamadı: ' $scriptPath } }"
 exit /b
 #>
@@ -97,8 +98,17 @@ function Show-Msg($text, $style) {
     [Microsoft.VisualBasic.Interaction]::MsgBox($text, $style, $L_Title) | Out-Null
 }
 function Restart-UpdateService {
-    try { Stop-Service  -Name wuauserv -Force -ErrorAction SilentlyContinue } catch {}
-    try { Start-Service -Name wuauserv       -ErrorAction SilentlyContinue } catch {}
+    # Stop-Service yavaş makinelerde hizmet kapanana kadar sonsuz bekler ("Waiting for
+    # service ... to stop" uyarısı döngüsü); bu yüzden bekleme en fazla 20 sn ile sınırlı.
+    $s = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
+    if (-not $s) { return }
+    try {
+        if ($s.Status -ne 'Stopped') {
+            $s.Stop()
+            $s.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(20))
+        }
+    } catch {}
+    try { Start-Service -Name wuauserv -WarningAction SilentlyContinue -ErrorAction SilentlyContinue } catch {}
 }
 function Refresh-Settings {
     Stop-Process -Name SystemSettings -Force -ErrorAction SilentlyContinue
@@ -116,7 +126,7 @@ function Set-NoAutoUpdate([int]$val) {
 # Eski sürümlerden kalmış olabilecek devre dışı hizmeti tekrar etkinleştir
 function Enable-UpdateService {
     try { Set-Service  -Name wuauserv -StartupType Manual -ErrorAction SilentlyContinue } catch {}
-    try { Start-Service -Name wuauserv -ErrorAction SilentlyContinue } catch {}
+    try { Start-Service -Name wuauserv -WarningAction SilentlyContinue -ErrorAction SilentlyContinue } catch {}
 }
 function Remove-ResumeTask {
     try { Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue } catch {}
@@ -126,7 +136,9 @@ function Register-ResumeTask([int]$days) {
     $action    = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -Command `"$resumeCmd`""
     $trigger   = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddDays($days))
     $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -RunLevel Highest
-    Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Force | Out-Null
+    # Bilgisayar tetik anında kapalıysa görev, açılır açılmaz çalışsın
+    $settings  = New-ScheduledTaskSettingsSet -StartWhenAvailable
+    Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 }
 
 # ---- Mevcut durum / Current state ----
@@ -165,34 +177,35 @@ else {
     }
     $days = $weeks * 7
 
-        if ($supportsPauseApi) {
-            # Modern Windows 10/11: yerleşik Pause API'si
-            if (-not (Test-Path $RegKey)) { New-Item -Path $RegKey -Force | Out-Null }
-            $now    = Get-Date
-            $nowUTC = $now.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-            $endUTC = $now.AddDays($days).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+    if ($supportsPauseApi) {
+        # Modern Windows 10/11: yerleşik Pause API'si
+        if (-not (Test-Path $RegKey)) { New-Item -Path $RegKey -Force | Out-Null }
+        $now    = Get-Date
+        $inv    = [Globalization.CultureInfo]::InvariantCulture
+        $nowUTC = $now.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ', $inv)
+        $endUTC = $now.AddDays($days).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ', $inv)
 
-            Set-ItemProperty -Path $RegKey -Name 'PauseFeatureUpdatesStartTime' -Value $nowUTC -Type String
-            Set-ItemProperty -Path $RegKey -Name 'PauseFeatureUpdatesEndTime'   -Value $endUTC -Type String
-            Set-ItemProperty -Path $RegKey -Name 'PauseQualityUpdatesStartTime' -Value $nowUTC -Type String
-            Set-ItemProperty -Path $RegKey -Name 'PauseQualityUpdatesEndTime'   -Value $endUTC -Type String
-            Set-ItemProperty -Path $RegKey -Name 'PauseUpdatesStartTime'        -Value $nowUTC -Type String
-            Set-ItemProperty -Path $RegKey -Name 'PauseUpdatesExpiryTime'       -Value $endUTC -Type String
+        Set-ItemProperty -Path $RegKey -Name 'PauseFeatureUpdatesStartTime' -Value $nowUTC -Type String
+        Set-ItemProperty -Path $RegKey -Name 'PauseFeatureUpdatesEndTime'   -Value $endUTC -Type String
+        Set-ItemProperty -Path $RegKey -Name 'PauseQualityUpdatesStartTime' -Value $nowUTC -Type String
+        Set-ItemProperty -Path $RegKey -Name 'PauseQualityUpdatesEndTime'   -Value $endUTC -Type String
+        Set-ItemProperty -Path $RegKey -Name 'PauseUpdatesStartTime'        -Value $nowUTC -Type String
+        Set-ItemProperty -Path $RegKey -Name 'PauseUpdatesExpiryTime'       -Value $endUTC -Type String
 
-            $maxDays = [Math]::Max($days, 35)
-            New-ItemProperty -Path $RegKey -Name 'FlightSettingsMaxPauseDays' -Value $maxDays -PropertyType DWord -Force | Out-Null
+        $maxDays = [Math]::Max($days, 35)
+        New-ItemProperty -Path $RegKey -Name 'FlightSettingsMaxPauseDays' -Value $maxDays -PropertyType DWord -Force | Out-Null
 
-            Restart-UpdateService
-        }
-        else {
-            # Windows Server 2016 / eski sürümler: otomatik OS güncelleştirmelerini
-            # ilkeyle durdur (hizmet çalışmaya devam eder -> Defender güncel kalır)
-            Set-NoAutoUpdate 1
-            Remove-ResumeTask
-            try { Register-ResumeTask -days $days } catch {}
-            Restart-UpdateService   # ilkenin uygulanması için yenile
-        }
+        Restart-UpdateService
+    }
+    else {
+        # Windows Server 2016 / eski sürümler: otomatik OS güncelleştirmelerini
+        # ilkeyle durdur (hizmet çalışmaya devam eder -> Defender güncel kalır)
+        Set-NoAutoUpdate 1
+        Remove-ResumeTask
+        try { Register-ResumeTask -days $days } catch {}
+        Restart-UpdateService   # ilkenin uygulanması için yenile
+    }
 
-        Show-Msg ($L_PausedTmpl -f $weeks, $days) $InfoModal
-        Refresh-Settings
+    Show-Msg ($L_PausedTmpl -f $weeks, $days) $InfoModal
+    Refresh-Settings
 }
